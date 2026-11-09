@@ -6,5 +6,3 @@ It's one hand-written `index.html` with no framework and no build step. Everythi
 
 - `index.html` is the whole page
 - `img/clever.jpg` is my photo (the page falls back to my GitHub avatar if it's missing)
-
-The colour picker in the bottom-left corner is temporary while friends help me choose a palette.

@@ -14,19 +14,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f4f1ea; --surface:#fffdf8; --ink:#16140f; --muted:#6b665c; --line:#ddd6c8;
-  --accent:#e2531f; --accent-ink:#fff; --ok:#1f7a5c; --blue:#2f5bd3; --chip:#ece6d9;
+  --bg:#f2f5fa; --surface:#ffffff; --ink:#0d1526; --muted:#5a6478; --line:#d9e0ec;
+  --accent:#1f5eff; --accent-ink:#fff; --ok:#0f8a6a; --blue:#7a3cff; --chip:#e6ecf6;
   --serif:"Fraunces",Georgia,serif; --sans:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#12110e; --surface:#1b1a16; --ink:#efe9dc; --muted:#a29b8c; --line:#2f2c25;
-    --accent:#ff7a45; --accent-ink:#12110e; --ok:#4fc3a1; --blue:#7c9cff; --chip:#26241e;
+    --bg:#0a0f1c; --surface:#111829; --ink:#e6ecf7; --muted:#8e9ab3; --line:#222c42;
+    --accent:#4da3ff; --accent-ink:#0a0f1c; --ok:#3fd6a6; --blue:#b28cff; --chip:#19223a;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#12110e; --surface:#1b1a16; --ink:#efe9dc; --muted:#a29b8c; --line:#2f2c25;
-  --accent:#ff7a45; --accent-ink:#12110e; --ok:#4fc3a1; --blue:#7c9cff; --chip:#26241e;
+  --bg:#0a0f1c; --surface:#111829; --ink:#e6ecf7; --muted:#8e9ab3; --line:#222c42;
+  --accent:#4da3ff; --accent-ink:#0a0f1c; --ok:#3fd6a6; --blue:#b28cff; --chip:#19223a;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -65,17 +65,6 @@ nav a:hover,nav a.on{color:var(--ink);background:var(--chip)}
 .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .badges span{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:99px;padding:4px 12px;background:var(--surface)}
 .badges span b{color:var(--accent);font-weight:600}
-/* palette preview panel */
-#pal{position:fixed;left:16px;bottom:16px;z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;font-family:var(--mono);font-size:12px;box-shadow:0 10px 40px -10px rgba(0,0,0,.35);max-width:calc(100vw - 32px)}
-#pal p{color:var(--muted);margin:8px 0;max-width:30em}
-#pal .pal-toggle{border:0;background:none;padding:0;font-weight:600;color:var(--ink)}
-#pal.min{padding:6px 12px}
-#pal.min p,#pal.min .opts{display:none}
-#pal .opts{display:flex;flex-wrap:wrap;gap:6px}
-#pal button{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:99px;padding:4px 10px 4px 4px;cursor:pointer;font:inherit}
-#pal button[aria-pressed="true"]{border-color:var(--accent);outline:2px solid var(--accent)}
-#pal i{display:inline-flex;width:30px;height:18px;border-radius:99px;overflow:hidden}
-#pal i s{flex:1}
 #name{width:100%;height:clamp(120px,24vw,290px);display:block;margin:10px 0 4px;cursor:crosshair;touch-action:pan-y}
 .hero-row{display:grid;grid-template-columns:1fr;gap:28px;align-items:center}
 @media (min-width:880px){.hero-row{grid-template-columns:1.1fr 1fr;gap:56px}}
@@ -564,6 +553,7 @@ function fit(cv){
     // spread the dots over the target so a shorter word still uses every dot
     pts.forEach((p,i)=>{ const q=t[Math.floor(i*t.length/pts.length)]; p.hx=q[0]; p.hy=q[1]; });
   }
+  const hasSize=()=>cv.getBoundingClientRect().width>=1;
   function build(){
     const f=fit(cv); ctx=f.x; W=f.w; H=f.h; gap=W<600?4:5;
     targets=WORDS.map(sample);
@@ -595,9 +585,9 @@ function fit(cv){
   const pos=e=>{const r=cv.getBoundingClientRect(); mouse.x=e.clientX-r.left; mouse.y=e.clientY-r.top;};
   cv.addEventListener('pointermove',pos); cv.addEventListener('pointerdown',pos);
   cv.addEventListener('pointerleave',()=>{mouse.x=mouse.y=-1e4;});
-  let t; addEventListener('resize',()=>{clearTimeout(t); t=setTimeout(()=>{build(); if(reduce) tick();},150);});
-  addEventListener('themechange',()=>{ if(reduce) tick(); });
-  (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{build(); tick();});
+  let t; addEventListener('resize',()=>{clearTimeout(t); t=setTimeout(()=>{ if(!hasSize()) return; build(); if(reduce) tick();},150);});
+  addEventListener('themechange',()=>{ if(reduce && ctx) tick(); });
+  (document.fonts?document.fonts.ready:Promise.resolve()).then(function start(){ if(!hasSize()){ setTimeout(start,200); return; } build(); tick(); });
 })();
 
 // 2) scrambling role text
@@ -836,35 +826,6 @@ document.querySelectorAll('.split').forEach(h=>{
   }
   addEventListener('scroll',()=>{ if(!ticking){ticking=true; requestAnimationFrame(update);} },{passive:true});
   addEventListener('resize',update); update();
-})();
-
-// 10) palette preview: open the page with ?palettes to try colour schemes (hidden on the live site otherwise)
-(function(){
-  const P={
-    clay:{name:'Clay',l:['#f4f1ea','#fffdf8','#16140f','#6b665c','#ddd6c8','#e2531f','#ffffff','#1f7a5c','#2f5bd3','#ece6d9'],d:['#12110e','#1b1a16','#efe9dc','#a29b8c','#2f2c25','#ff7a45','#12110e','#4fc3a1','#7c9cff','#26241e']},
-    ocean:{name:'Ocean',l:['#f2f5fa','#ffffff','#0d1526','#5a6478','#d9e0ec','#1f5eff','#ffffff','#0f8a6a','#7a3cff','#e6ecf6'],d:['#0a0f1c','#111829','#e6ecf7','#8e9ab3','#222c42','#4da3ff','#0a0f1c','#3fd6a6','#b28cff','#19223a']},
-    lime:{name:'Ink & Lime',l:['#f5f5f0','#ffffff','#111111','#666660','#deded6','#4c8a00','#ffffff','#0a7c66','#3355dd','#ebebe3'],d:['#0c0c0c','#161616','#f2f2ec','#9a9a92','#2a2a2a','#c6f432','#0c0c0c','#4fd1b5','#8aa2ff','#1f1f1f']},
-    savanna:{name:'Savanna',l:['#f6f1e4','#fffaf0','#102a1f','#5f6b5f','#ddd3bb','#0b7a4b','#ffffff','#b7791f','#c2412d','#ece4cf'],d:['#0b1a14','#11241c','#f3ecd8','#a5ad9a','#22392e','#f2b632','#0b1a14','#4cc38a','#e8604c','#183026']},
-    violet:{name:'Violet',l:['#f6f4fb','#ffffff','#17132a','#6a6580','#e0dcef','#6a3cff','#ffffff','#0f8a6a','#e0457b','#ece8f8'],d:['#0f0c1a','#17132a','#ece8fa','#9c96b5','#2a2442','#a98bff','#0f0c1a','#4fd1b5','#ff7aa8','#201a36']},
-    mono:{name:'Mono + Red',l:['#ffffff','#fafafa','#000000','#666666','#e5e5e5','#ff3b1f','#ffffff','#00a36c','#444444','#f0f0f0'],d:['#000000','#0d0d0d','#ffffff','#8a8a8a','#222222','#ff4d2e','#000000','#2fd98a','#bbbbbb','#1a1a1a']}
-  };
-  // Temporary: shown to every visitor while friends help pick the final palette.
-  const keys=['--bg','--surface','--ink','--muted','--line','--accent','--accent-ink','--ok','--blue','--chip'];
-  const root=document.documentElement; let cur='clay';
-  try{ const saved=localStorage.getItem('lurosan-palette'); if(saved && P[saved]) cur=saved; }catch(e){}
-  const isDark=()=>root.dataset.theme ? root.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-  function apply(){ const v=P[cur][isDark()?'d':'l']; keys.forEach((k,i)=>root.style.setProperty(k,v[i])); readColors(); }
-  const box=document.createElement('div'); box.id='pal';
-  if(innerWidth<700) box.classList.add('min');
-  box.innerHTML='<button class="pal-toggle" type="button" aria-label="Show or hide the colour picker">🎨 <span>help me pick the colours</span></button><p>Which one do you like best? ◐ in the menu switches between light and dark.</p><div class="opts">'+Object.entries(P).map(([k,p])=>
-    `<button data-k="${k}" aria-pressed="${k===cur}"><i><s style="background:${p.l[0]}"></s><s style="background:${p.l[5]}"></s><s style="background:${p.d[0]}"></s><s style="background:${p.d[5]}"></s></i>${p.name}</button>`).join('')+'</div>';
-  document.body.appendChild(box);
-  box.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
-    if(b.classList.contains('pal-toggle')){ box.classList.toggle('min'); return; }
-    cur=b.dataset.k; try{ localStorage.setItem('lurosan-palette',cur); }catch(err){}
-    box.querySelectorAll('.opts button').forEach(o=>o.setAttribute('aria-pressed',o===b)); apply(); dispatchEvent(new Event('themechange')); });
-  addEventListener('themechange',()=>{ const v=P[cur][isDark()?'d':'l']; if(getComputedStyle(root).getPropertyValue('--bg').trim()!==v[0]) apply(); });
-  apply();
 })();
 
 // 11) copy email
