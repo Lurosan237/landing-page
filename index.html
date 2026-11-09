@@ -251,7 +251,7 @@ footer{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;ju
     <div class="hero-kicker"><span class="dot"></span>maths student · self‑taught developer · storyteller</div>
     <div class="name-wrap">
       <canvas id="name" aria-label="Clever, also known as Lurosan" role="img"></canvas>
-      <div class="name-tag" aria-hidden="true">real name <b id="nameNow">clever</b> · online <b>lurosan</b></div>
+      <div class="name-tag" aria-hidden="true">real name <b>clever</b> · online <b>lurosan</b></div>
     </div>
     <div class="hero-row">
       <div>
@@ -535,7 +535,7 @@ function fit(cv){
 (function(){
   // The real name "clever" is the resting state; every few seconds the dots
   // regroup into the handle "lurosan" and then back.
-  const cv=document.getElementById('name'), tag=document.getElementById('nameNow');
+  const cv=document.getElementById('name');
   const WORDS=['clever','lurosan'];
   let ctx,W,H,pts=[],mouse={x:-1e4,y:-1e4},targets=[],word=0,gap=5;
   function sample(text){
@@ -563,8 +563,8 @@ function fit(cv){
     if(reduce) pts.forEach(p=>{p.x=p.hx;p.y=p.hy;});
   }
   if(!reduce) (function cycle(){
-    setTimeout(()=>{ word=1; aim(); tag.textContent='lurosan';
-      setTimeout(()=>{ word=0; aim(); tag.textContent='clever'; cycle(); },2600);
+    setTimeout(()=>{ word=1; aim();
+      setTimeout(()=>{ word=0; aim(); cycle(); },2600);
     },5200);
   })();
   function tick(){
